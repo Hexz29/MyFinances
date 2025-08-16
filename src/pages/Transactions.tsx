@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -6,14 +6,43 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { formatCurrency, formatDate } from '@/lib/utils'
+import { supabase } from '@/integrations/supabase/client'
 import { Plus, Search, Filter, TrendingUp, TrendingDown } from 'lucide-react'
 import type { Transaction } from '@/types'
 
 export function Transactions() {
   // Start with no transactions (cleared/mocked data removed)
   const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [loading, setLoading] = useState(false)
+
+  // Load transactions from Supabase on mount
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true)
+      try {
+        const { data, error } = await supabase
+          .from<Transaction>('transactions')
+          .select('*')
+          .order('date', { ascending: false })
+
+        if (error) {
+          console.error('Failed to load transactions from Supabase', error)
+        } else if (data) {
+          setTransactions(data)
+        }
+      } catch (e) {
+        console.error('Unexpected error loading transactions', e)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    load()
+  }, [])
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
 
@@ -30,37 +59,67 @@ export function Transactions() {
     expense: ['Alimentação', 'Transporte', 'Lazer', 'Saúde', 'Educação', 'Casa', 'Outros']
   }
 
-  const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         transaction.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredTransactions = transactions.filter((transaction: Transaction) => {
+  const matchesSearch = (transaction.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+             (transaction.category || '').toLowerCase().includes(searchTerm.toLowerCase())
     const matchesType = filterType === 'all' || transaction.type === filterType
     return matchesSearch && matchesType
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    const transaction: Transaction = {
-      id: Date.now().toString(),
+    const amountValue = Number(newTransaction.amount)
+    const payload = {
       user_id: 'user1',
       account_id: 'acc1',
       type: newTransaction.type,
       category: newTransaction.category,
-      amount: parseFloat(newTransaction.amount),
+      amount: isFinite(amountValue) ? amountValue : 0,
       description: newTransaction.description,
-      date: newTransaction.date,
+      date: newTransaction.date
+    }
+
+    // Optimistic UI: add a temporary id and show while inserting
+    const temp: Transaction = {
+      id: `temp-${Date.now()}`,
+      ...payload,
       created_at: new Date().toISOString()
     }
 
-    setTransactions([transaction, ...transactions])
-    setNewTransaction({
-      type: 'expense',
-      category: '',
-      amount: '',
-      description: '',
-      date: new Date().toISOString().split('T')[0]
-    })
-    setIsDialogOpen(false)
+    setTransactions((prev: Transaction[]) => [temp, ...prev])
+    setIsSubmitting(true)
+    setSubmitError(null)
+
+    try {
+      const { data, error } = await supabase.from('transactions').insert([payload]).select().single()
+      if (error) {
+        console.error('Failed to insert transaction', error)
+        setSubmitError(error.message || 'Erro ao salvar transação')
+        // rollback optimistic update
+        setTransactions((prev: Transaction[]) => prev.filter((t: Transaction) => t.id !== temp.id))
+        return
+      }
+
+      if (data) {
+        // replace temp item with saved record
+        setTransactions((prev: Transaction[]) => [data as Transaction, ...prev.filter((t: Transaction) => t.id !== temp.id)])
+        setNewTransaction({
+          type: 'expense',
+          category: '',
+          amount: '',
+          description: '',
+          date: new Date().toISOString().split('T')[0]
+        })
+        setIsDialogOpen(false)
+      }
+    } catch (e: any) {
+      console.error('Unexpected error inserting transaction', e)
+      setSubmitError(e?.message || 'Erro inesperado ao salvar')
+      setTransactions((prev: Transaction[]) => prev.filter((t: Transaction) => t.id !== temp.id))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -233,7 +292,7 @@ export function Transactions() {
                     <p className={`font-semibold ${
                       transaction.type === 'income' ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {transaction.type === 'income' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                      {transaction.type === 'income' ? '+' : '-'}{formatCurrency(Number(transaction.amount) || 0)}
                     </p>
                     <p className="text-sm text-gray-500">
                       {formatDate(new Date(transaction.date))}
