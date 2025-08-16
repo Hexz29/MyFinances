@@ -47,13 +47,8 @@ export function Dashboard() {
     }
   ]
 
-  const recentTransactions = [
-    { id: 1, description: 'Salário', amount: 5000, type: 'income', date: '2024-01-15' },
-    { id: 2, description: 'Supermercado', amount: -250.50, type: 'expense', date: '2024-01-14' },
-    { id: 3, description: 'Freelance', amount: 800, type: 'income', date: '2024-01-13' },
-    { id: 4, description: 'Combustível', amount: -120, type: 'expense', date: '2024-01-12' },
-    { id: 5, description: 'Investimento', amount: -1000, type: 'expense', date: '2024-01-10' }
-  ]
+  // No recent transactions (cleared mock data)
+  const recentTransactions: { id: number; description: string; amount: number; type: string; date: string }[] = []
 
   return (
     <div className="space-y-6">

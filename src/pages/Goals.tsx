@@ -9,28 +9,8 @@ import { Plus, Target, Calendar, TrendingUp } from 'lucide-react'
 import type { Goal } from '@/types'
 
 export function Goals() {
-  const [goals, setGoals] = useState<Goal[]>([
-    {
-      id: '1',
-      user_id: 'user1',
-      name: 'Reserva de Emergência',
-      target_amount: 10000,
-      current_amount: 6500,
-      target_date: '2024-12-31',
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-15T00:00:00Z'
-    },
-    {
-      id: '2',
-      user_id: 'user1',
-      name: 'Viagem para Europa',
-      target_amount: 15000,
-      current_amount: 3200,
-      target_date: '2024-07-01',
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-15T00:00:00Z'
-    }
-  ])
+  // Start with no goals (cleared mock data)
+  const [goals, setGoals] = useState<Goal[]>([])
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [newGoal, setNewGoal] = useState({

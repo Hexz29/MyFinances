@@ -10,30 +10,8 @@ import { Plus, PiggyBank, AlertTriangle } from 'lucide-react'
 import type { Budget } from '@/types'
 
 export function Budgets() {
-  const [budgets, setBudgets] = useState<Budget[]>([
-    {
-      id: '1',
-      user_id: 'user1',
-      category: 'Alimentação',
-      amount: 1000,
-      spent: 800,
-      month: 1,
-      year: 2024,
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-15T00:00:00Z'
-    },
-    {
-      id: '2',
-      user_id: 'user1',
-      category: 'Transporte',
-      amount: 400,
-      spent: 300,
-      month: 1,
-      year: 2024,
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-15T00:00:00Z'
-    }
-  ])
+  // Start with no budgets (cleared mock data)
+  const [budgets, setBudgets] = useState<Budget[]>([])
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [newBudget, setNewBudget] = useState({

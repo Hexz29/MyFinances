@@ -10,30 +10,8 @@ import { Plus, Search, Filter, TrendingUp, TrendingDown } from 'lucide-react'
 import type { Transaction } from '@/types'
 
 export function Transactions() {
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: '1',
-      user_id: 'user1',
-      account_id: 'acc1',
-      type: 'income',
-      category: 'Salário',
-      amount: 5000,
-      description: 'Salário mensal',
-      date: '2024-01-15',
-      created_at: '2024-01-15T10:00:00Z'
-    },
-    {
-      id: '2',
-      user_id: 'user1',
-      account_id: 'acc1',
-      type: 'expense',
-      category: 'Alimentação',
-      amount: 250.50,
-      description: 'Supermercado',
-      date: '2024-01-14',
-      created_at: '2024-01-14T15:30:00Z'
-    }
-  ])
+  // Start with no transactions (cleared/mocked data removed)
+  const [transactions, setTransactions] = useState<Transaction[]>([])
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')

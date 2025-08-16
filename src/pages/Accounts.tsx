@@ -10,35 +10,8 @@ import { Plus, CreditCard, Wallet, TrendingUp, Building } from 'lucide-react'
 import type { Account } from '@/types'
 
 export function Accounts() {
-  const [accounts, setAccounts] = useState<Account[]>([
-    {
-      id: '1',
-      user_id: 'user1',
-      name: 'Conta Corrente Principal',
-      type: 'checking',
-      balance: 5420.50,
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-15T00:00:00Z'
-    },
-    {
-      id: '2',
-      user_id: 'user1',
-      name: 'Poupança',
-      type: 'savings',
-      balance: 8500.00,
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-15T00:00:00Z'
-    },
-    {
-      id: '3',
-      user_id: 'user1',
-      name: 'Investimentos',
-      type: 'investment',
-      balance: 12300.75,
-      created_at: '2024-01-01T00:00:00Z',
-      updated_at: '2024-01-15T00:00:00Z'
-    }
-  ])
+  // Start with no accounts (cleared mock data)
+  const [accounts, setAccounts] = useState<Account[]>([])
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [newAccount, setNewAccount] = useState({
