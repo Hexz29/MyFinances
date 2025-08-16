@@ -9,6 +9,7 @@ import { formatCurrency, formatDate } from '@/lib/utils'
 import { supabase } from '@/integrations/supabase/client'
 import { Plus, Search, Filter, TrendingUp, TrendingDown } from 'lucide-react'
 import type { Transaction } from '@/types'
+import { useAuth } from '@/contexts/AuthContext'
 
 export function Transactions() {
   // Start with no transactions (cleared/mocked data removed)
@@ -40,6 +41,8 @@ export function Transactions() {
     load()
   }, [])
 
+  const { user } = useAuth()
+
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -70,8 +73,11 @@ export function Transactions() {
     e.preventDefault()
     
     const amountValue = Number(newTransaction.amount)
+    const userId = user?.id ?? 'user1'
+    if (!user) console.warn('No authenticated user found; using fallback user_id')
+
     const payload = {
-      user_id: 'user1',
+      user_id: userId,
       account_id: 'acc1',
       type: newTransaction.type,
       category: newTransaction.category,
