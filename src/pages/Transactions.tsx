@@ -73,8 +73,7 @@ export function Transactions() {
     e.preventDefault()
     
     const amountValue = Number(newTransaction.amount)
-    const userId = user?.id ?? 'user1'
-    if (!user) console.warn('No authenticated user found; using fallback user_id')
+    const userId = user.id
 
     const payload = {
       user_id: userId,
